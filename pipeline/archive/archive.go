@@ -94,13 +94,13 @@ func create(ctx *context.Context, binaries []artifact.Artifact) error {
 	var a = archive.New(archiveFile)
 	defer a.Close() // nolint: errcheck
 
-	files, err := findFiles(ctx)
+	files, err := findFiles(ctx, binaries)
 	if err != nil {
 		return fmt.Errorf("failed to find files to archive: %s", err.Error())
 	}
 	for _, f := range files {
 		log.Debugf("adding %s", f)
-		if err = a.Add(wrap(ctx, f, folder), f); err != nil {
+		if err = a.Add(wrap(ctx, filepath.Base(f), folder), f); err != nil {
 			return fmt.Errorf("failed to add %s to the archive: %s", f, err.Error())
 		}
 	}
@@ -121,7 +121,6 @@ func create(ctx *context.Context, binaries []artifact.Artifact) error {
 	})
 	return nil
 }
-
 func skip(ctx *context.Context, binaries []artifact.Artifact) error {
 	for _, binary := range binaries {
 		log.WithField("binary", binary.Name).Info("skip archiving")
@@ -137,8 +136,17 @@ func skip(ctx *context.Context, binaries []artifact.Artifact) error {
 	return nil
 }
 
-func findFiles(ctx *context.Context) (result []string, err error) {
-	for _, glob := range ctx.Config.Archive.Files {
+func findFiles(ctx *context.Context, binaries []artifact.Artifact) (result []string, err error) {
+	for _, globTmpl := range ctx.Config.Archive.Files {
+		var glob string
+		glob, err = filenametemplate.Apply(
+			globTmpl,
+			filenametemplate.NewFields(ctx, nil, binaries...),
+		)
+		if err != nil {
+			return
+		}
+		log.Debugf("adding glob %s \n", glob)
 		files, err := zglob.Glob(glob)
 		if err != nil {
 			return result, fmt.Errorf("globbing failed for pattern %s: %s", glob, err.Error())
