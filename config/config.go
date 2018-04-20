@@ -105,10 +105,11 @@ type Archive struct {
 	NameTemplate string            `yaml:"name_template,omitempty"`
 	Replacements map[string]string `yaml:",omitempty"`
 
-	Format          string           `yaml:",omitempty"`
-	FormatOverrides []FormatOverride `yaml:"format_overrides,omitempty"`
-	WrapInDirectory bool             `yaml:"wrap_in_directory,omitempty"`
-	Files           []string         `yaml:",omitempty"`
+	Format              string           `yaml:",omitempty"`
+	FormatOverrides     []FormatOverride `yaml:"format_overrides,omitempty"`
+	WrapInDirectory     bool             `yaml:"wrap_in_directory,omitempty"`
+	WrapInDirectoryPath string           `yaml:"wrap_in_directory_path,omitempty"`
+	Files               []string         `yaml:",omitempty"`
 }
 
 // Release config used for the GitHub release

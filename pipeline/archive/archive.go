@@ -163,7 +163,7 @@ func findFiles(ctx *context.Context, binaries []artifact.Artifact) (result []str
 // Wrap archive files with folder if set in config.
 func wrap(ctx *context.Context, name, folder string) string {
 	if ctx.Config.Archive.WrapInDirectory {
-		return filepath.Join(folder, name)
+		return filepath.Join(folder, ctx.Config.Archive.WrapInDirectoryPath, name)
 	}
 	return name
 }
